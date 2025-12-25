@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+
 
 public class SimpleMovement : MonoBehaviour
 {
@@ -12,9 +15,18 @@ public class SimpleMovement : MonoBehaviour
 
     Vector3 velocity;
 
+    [Header("Vida")]
+    public int life = 100;
+
     [Header("Armas")]
-    public Transform hand;          // Empty donde se equipa el arma
-    public Armas armaActual;        // Arma equipada (componente)
+    public Transform hand;
+    public Armas armaActual;
+
+    void OnEnable()
+{
+    life = 100;
+}
+
 
     void Update()
     {
@@ -33,14 +45,10 @@ public class SimpleMovement : MonoBehaviour
         controller.Move(move * currentSpeed * Time.deltaTime);
 
         if (controller.isGrounded && velocity.y < 0)
-        {
             velocity.y = -2f;
-        }
 
         if (Input.GetButtonDown("Jump") && controller.isGrounded)
-        {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
 
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
@@ -51,57 +59,40 @@ public class SimpleMovement : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("Click detectado");
-
             if (armaActual != null)
-            {
-                Debug.Log("Arma equipada: " + armaActual.gameObject.name);
                 armaActual.Shoot();
-            }
-            else
-            {
-                Debug.Log("No hay arma equipada");
-            }
         }
     }
 
-    // ---------------- Pick up de armas ----------------
-    private void OnTriggerEnter(Collider other)
+    // ---------------- DAÑO ----------------
+    public void TakeDamage(int damage)
     {
-        WeaponPickup pickup = other.GetComponent<WeaponPickup>();
+        life -= damage;
+        Debug.Log("Vida del jugador: " + life);
 
-        if (pickup != null)
-        {
-            Debug.Log("Pickup detectado: " + pickup.gameObject.name);
-            EquiparArma(pickup);
-        }
+        if (life <= 0)
+            Die();
     }
 
-    void EquiparArma(WeaponPickup pickup)
-    {
-        // Si ya había un arma equipada, la destruimos
-        if (armaActual != null|| pickup==null)
-        {
-            Debug.Log("Destruyendo arma anterior: " + armaActual.gameObject.name);
-            Destroy(armaActual.gameObject);
-        }
+  void Die()
+{
+    Debug.Log("Jugador muerto");
+    SceneManager.LoadScene("Menu");
+}
 
-        // Instanciar el arma equipada
-        Armas nuevaArma = Instantiate(
-            pickup.weaponPrefab,
-            hand.position,
-            hand.rotation
-        );
 
-        nuevaArma.transform.SetParent(hand);
-        nuevaArma.transform.localPosition = Vector3.zero;
-        nuevaArma.transform.localRotation = Quaternion.Euler(0f, 0f, 260f);
+IEnumerator DeathRoutine()
+{
+    Destroy(gameObject);          // destruye el Player
+    yield return null;            // espera 1 frame
+    SceneManager.LoadScene("Menu");
+}
+void GoToMenu()
+{
+    SceneManager.LoadScene("Menu");
+}
 
-        armaActual = nuevaArma;
 
-        Debug.Log("Nueva arma equipada: " + armaActual.gameObject.name);
 
-        // Destruir el pickup del suelo
-        Destroy(pickup.gameObject);
-    }
+
 }
