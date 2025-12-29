@@ -21,17 +21,33 @@ public class SimpleMovement : MonoBehaviour
     [Header("Armas")]
     public Transform hand;
     public Armas armaActual;
+    public Armas pistola;
+    public Armas rifle;
+    public Armas escopeta;
+    [Header("UI")]
+public GameObject crosshair;
+
+
 
     void OnEnable()
 {
     life = 100;
 }
 
+        void Start()
+{
+    Cursor.lockState = CursorLockMode.Locked;
+    Cursor.visible = false;
+}
+
+    
 
     void Update()
     {
         Movimiento();
         GestionArmas();
+        CambiarConTeclas();
+
     }
 
     // ---------------- Movimiento ----------------
@@ -90,6 +106,46 @@ IEnumerator DeathRoutine()
 void GoToMenu()
 {
     SceneManager.LoadScene("Menu");
+}
+
+public void EquipWeapon(Armas nuevaArma)
+{
+    if (nuevaArma is Pistola)
+        pistola = nuevaArma;
+    else if (nuevaArma is Rifle)
+        rifle = nuevaArma;
+    else if (nuevaArma is Escopeta)
+        escopeta = nuevaArma;
+
+    nuevaArma.Equip(hand);
+    nuevaArma.gameObject.SetActive(false);
+
+    // 👉 ACTIVAR LA MIRA
+    if (crosshair != null && !crosshair.activeSelf)
+        crosshair.SetActive(true);
+}
+
+
+
+void CambiarArma(Armas nuevaArma)
+{
+    if (armaActual != null)
+        armaActual.gameObject.SetActive(false);
+
+    armaActual = nuevaArma;
+    armaActual.gameObject.SetActive(true);
+}
+
+void CambiarConTeclas()
+{
+    if (Input.GetKeyDown(KeyCode.Alpha1) && pistola != null)
+        CambiarArma(pistola);
+
+    if (Input.GetKeyDown(KeyCode.Alpha2) && rifle != null)
+        CambiarArma(rifle);
+
+    if (Input.GetKeyDown(KeyCode.Alpha3) && escopeta != null)
+        CambiarArma(escopeta);
 }
 
 

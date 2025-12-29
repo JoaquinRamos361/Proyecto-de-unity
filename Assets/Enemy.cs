@@ -17,10 +17,13 @@ public class Enemy : MonoBehaviour
     GameObject player;
     Vector3 patrolTarget;
     float lastAttackTime;
+    public EnemyCounter enemyCounter;
+
 
     void Start()
     {
         SetNewPatrolPoint();
+        enemyCounter = FindObjectOfType<EnemyCounter>();
     }
 
     void Update()
@@ -126,9 +129,20 @@ public class Enemy : MonoBehaviour
 
     // ---------------- DAÑO ----------------
     public void GetDamage(int damage)
+{
+    life -= damage;
+
+    if (life <= 0)
     {
-        life -= damage;
-        if (life <= 0)
-            Destroy(gameObject);
+        FindObjectOfType<EnemyCounter>().EnemyKilled();
+        Destroy(gameObject);
     }
 }
+
+}
+
+
+
+
+
+
