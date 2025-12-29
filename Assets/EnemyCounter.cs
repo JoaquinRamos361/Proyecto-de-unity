@@ -7,7 +7,7 @@ public class EnemyCounter : MonoBehaviour
 {
     public TMP_Text counterText;
     public TMP_Text youWinText;
-    public int totalEnemies = 15;
+    public int totalEnemies = 17;
 
     private int enemiesKilled = 0;
 
